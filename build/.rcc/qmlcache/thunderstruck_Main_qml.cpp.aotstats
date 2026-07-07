@@ -1,0 +1,15 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                    ],
+                    "filePath": "/home/volty/thunderstruck/thunderstrucks.com/src/Main.qml"
+                }
+            ],
+            "moduleId": "thunderstruck(thunderstruck)"
+        }
+    ]
+}

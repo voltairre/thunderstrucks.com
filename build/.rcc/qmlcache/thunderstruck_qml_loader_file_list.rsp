@@ -1,0 +1,5 @@
+--resource
+/home/volty/thunderstruck/thunderstrucks.com/build/.qt/rcc/qmake_thunderstruck.qrc
+--resource
+/home/volty/thunderstruck/thunderstrucks.com/build/.qt/rcc/thunderstruck_raw_qml_0.qrc
+/qt/qml/thunderstruck/Main.qml

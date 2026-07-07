@@ -1,0 +1,14 @@
+-rootPath
+/home/volty/thunderstruck/thunderstrucks.com/src
+-cmake-output
+-output-file
+/home/volty/thunderstruck/thunderstrucks.com/build/.qt/qml_imports/thunderstruck_conf.cmake
+-importPath
+/home/volty/thunderstruck/thunderstrucks.com/build
+-importPath
+/home/volty/thunderstruck/thunderstrucks.com/build/thunderstruck
+-importPath
+/home/volty/thunderstruck/qt-wasm/6.11.1/wasm_multithread/qml
+-qrcFiles
+/home/volty/thunderstruck/thunderstrucks.com/build/.qt/rcc/qmake_thunderstruck.qrc
+/home/volty/thunderstruck/thunderstrucks.com/build/.qt/rcc/thunderstruck_raw_qml_0.qrc

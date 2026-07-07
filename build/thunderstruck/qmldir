@@ -1,0 +1,6 @@
+module thunderstruck
+typeinfo thunderstruck.qmltypes
+prefer :/qt/qml/thunderstruck/
+Main 254.0 Main.qml
+depends QtQuick
+
