@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_thunderstruck_FILE /home/volty/thunderstruck/thunderstrucks.com/build/thunderstruck.js)
-set(__QT_DEPLOY_TARGET_thunderstruck_TYPE EXECUTABLE)

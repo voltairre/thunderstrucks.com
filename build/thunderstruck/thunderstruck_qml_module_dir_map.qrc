@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/">
-    <file alias="/qt/qml/thunderstruck">/home/volty/thunderstruck/thunderstrucks.com/build/thunderstruck</file>
-
-  </qresource>
-</RCC>
