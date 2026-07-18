@@ -34,4 +34,6 @@ target_link_options(thunderstruck PRIVATE
     -flto
     -O0
     -sWASM_BIGINT
+    -sMAX_WEBGL_VERSION=2
+    -sWEBGL2_BACKWARDS_COMPATIBILITY_EMULATION
 )

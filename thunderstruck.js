@@ -10776,6 +10776,43 @@ var _emscripten_glShaderBinary = _glShaderBinary;
   string >>>= 0;
   length >>>= 0;
   var source = GL.getSource(shader, count, string, length);
+  if (GL.currentContext.version >= 2) {
+    // If a WebGL 1 shader happens to use GL_EXT_shader_texture_lod extension,
+    // it will not compile on WebGL 2, because WebGL 2 no longer supports that
+    // extension for WebGL 1 shaders. Therefore upgrade shaders to WebGL 2
+    // by doing a bunch of dirty hacks. Not guaranteed to work on all shaders.
+    // One might consider doing this for only the shaders that actually use
+    // the GL_EXT_shader_texture_lod extension, but the problem is that
+    // vertex and fragment shader versions need to match, and when compiling
+    // the corresponding vertex shader, we would not know if that needed to
+    // be compiled with or without the patch, so we must patch all shaders.
+    if (source.includes("#version 100")) {
+      source = source.replace(/#extension GL_OES_standard_derivatives : enable/g, "");
+      source = source.replace(/#extension GL_EXT_shader_texture_lod : enable/g, "");
+      var prelude = "";
+      if (source.includes("gl_FragColor")) {
+        prelude += "out mediump vec4 GL_FragColor;\n";
+        source = source.replace(/gl_FragColor/g, "GL_FragColor");
+      }
+      if (source.includes("attribute")) {
+        source = source.replace(/attribute/g, "in");
+        source = source.replace(/varying/g, "out");
+      } else {
+        source = source.replace(/varying/g, "in");
+      }
+      source = source.replace(/textureCubeLodEXT/g, "textureCubeLod");
+      source = source.replace(/texture2DLodEXT/g, "texture2DLod");
+      source = source.replace(/texture2DProjLodEXT/g, "texture2DProjLod");
+      source = source.replace(/texture2DGradEXT/g, "texture2DGrad");
+      source = source.replace(/texture2DProjGradEXT/g, "texture2DProjGrad");
+      source = source.replace(/textureCubeGradEXT/g, "textureCubeGrad");
+      source = source.replace(/textureCube/g, "texture");
+      source = source.replace(/texture1D/g, "texture");
+      source = source.replace(/texture2D/g, "texture");
+      source = source.replace(/texture3D/g, "texture");
+      source = source.replace(/#version 100/g, "#version 300 es\n" + prelude);
+    }
+  }
   GLctx.shaderSource(GL.shaders[shader], source);
 }
 
@@ -10807,6 +10844,26 @@ var _emscripten_glStencilOpSeparate = _glStencilOpSeparate;
 
 /** @suppress {duplicate } */ function _glTexImage2D(target, level, internalFormat, width, height, border, format, type, pixels) {
   pixels >>>= 0;
+  if (GL.currentContext.version >= 2) {
+    // WebGL 1 unsized texture internalFormats are no longer supported in
+    // WebGL 2, so patch those format enums to the ones that are present in
+    // WebGL 2.
+    if (format == 6402 && internalFormat == 6402 && type == 5125) {
+      internalFormat = 33190;
+    }
+    if (type == 36193) {
+      type = 5131;
+      if (format == 6408 && internalFormat == 6408) {
+        internalFormat = 34842;
+      }
+    }
+    if (internalFormat == 34041) {
+      internalFormat = 35056;
+    }
+    if (internalFormat == 6408 && type == 5126) {
+      internalFormat = 34836;
+    }
+  }
   if (GL.currentContext.version >= 2) {
     if (GLctx.currentPixelUnpackBufferBinding) {
       GLctx.texImage2D(target, level, internalFormat, width, height, border, format, type, pixels);
@@ -10868,6 +10925,13 @@ var _emscripten_glTexStorage3D = _glTexStorage3D;
 
 /** @suppress {duplicate } */ function _glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels) {
   pixels >>>= 0;
+  if (GL.currentContext.version >= 2) {
+    // In WebGL 1 to do half float textures, one uses the type enum
+    // GL_HALF_FLOAT_OES, but in WebGL 2 when half float textures were adopted
+    // to the core spec, the enum changed value which breaks backwards
+    // compatibility. Route old enum number to the new one.
+    if (type == 36193) type = 5131;
+  }
   if (GL.currentContext.version >= 2) {
     if (GLctx.currentPixelUnpackBufferBinding) {
       GLctx.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
