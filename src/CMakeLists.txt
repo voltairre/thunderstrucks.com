@@ -16,7 +16,7 @@ qt_add_qml_module(thunderstruck
 	Main.qml
 
     RESOURCES
-	full_green_energy.jpg
+	blur_full_green_energy.jpg
 )
 
 target_link_libraries(thunderstruck PRIVATE
