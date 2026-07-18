@@ -7699,6 +7699,32 @@ function __munmap_js(addr, len, prot, flags, fd, offset) {
   }
 }
 
+var timers = {};
+
+var _emscripten_get_now = () => performance.timeOrigin + performance.now();
+
+function __setitimer_js(which, timeout_ms) {
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(38, 0, 1, which, timeout_ms);
+  // First, clear any existing timer.
+  if (timers[which]) {
+    clearTimeout(timers[which].id);
+    delete timers[which];
+  }
+  // A timeout of zero simply cancels the current timeout so we have nothing
+  // more to do.
+  if (!timeout_ms) return 0;
+  var id = setTimeout(() => {
+    assert(which in timers);
+    delete timers[which];
+    callUserCallback(() => __emscripten_timeout(which, _emscripten_get_now()));
+  }, timeout_ms);
+  timers[which] = {
+    id,
+    timeout_ms
+  };
+  return 0;
+}
+
 var __tzset_js = function(timezone, daylight, std_name, dst_name) {
   timezone >>>= 0;
   daylight >>>= 0;
@@ -7748,8 +7774,6 @@ var __tzset_js = function(timezone, daylight, std_name, dst_name) {
     stringToUTF8(summerName, std_name, 17);
   }
 };
-
-var _emscripten_get_now = () => performance.timeOrigin + performance.now();
 
 var _emscripten_date_now = () => Date.now();
 
@@ -8128,7 +8152,7 @@ var getBoundingClientRect = e => specialHTMLTargets.indexOf(e) < 0 ? e.getBoundi
 };
 
 function _emscripten_get_element_css_size(target, width, height) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(38, 0, 1, target, width, height);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(39, 0, 1, target, width, height);
   target >>>= 0;
   width >>>= 0;
   height >>>= 0;
@@ -12354,7 +12378,7 @@ var registerUiEventCallback = (target, userData, useCapture, callbackfunc, event
 };
 
 function _emscripten_set_resize_callback_on_thread(target, userData, useCapture, callbackfunc, targetThread) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(39, 0, 1, target, userData, useCapture, callbackfunc, targetThread);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(40, 0, 1, target, userData, useCapture, callbackfunc, targetThread);
   target >>>= 0;
   userData >>>= 0;
   callbackfunc >>>= 0;
@@ -12479,7 +12503,7 @@ var registerWheelEventCallback = (target, userData, useCapture, callbackfunc, ev
 };
 
 function _emscripten_set_wheel_callback_on_thread(target, userData, useCapture, callbackfunc, targetThread) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(40, 0, 1, target, userData, useCapture, callbackfunc, targetThread);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(41, 0, 1, target, userData, useCapture, callbackfunc, targetThread);
   target >>>= 0;
   userData >>>= 0;
   callbackfunc >>>= 0;
@@ -13037,7 +13061,7 @@ var getEnvStrings = () => {
 };
 
 function _environ_get(__environ, environ_buf) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(41, 0, 1, __environ, environ_buf);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(42, 0, 1, __environ, environ_buf);
   __environ >>>= 0;
   environ_buf >>>= 0;
   var bufSize = 0;
@@ -13052,7 +13076,7 @@ function _environ_get(__environ, environ_buf) {
 }
 
 function _environ_sizes_get(penviron_count, penviron_buf_size) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(42, 0, 1, penviron_count, penviron_buf_size);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(43, 0, 1, penviron_count, penviron_buf_size);
   penviron_count >>>= 0;
   penviron_buf_size >>>= 0;
   var strings = getEnvStrings();
@@ -13066,7 +13090,7 @@ function _environ_sizes_get(penviron_count, penviron_buf_size) {
 }
 
 function _fd_close(fd) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(43, 0, 1, fd);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(44, 0, 1, fd);
   try {
     var stream = SYSCALLS.getStreamFromFD(fd);
     FS.close(stream);
@@ -13078,7 +13102,7 @@ function _fd_close(fd) {
 }
 
 function _fd_fdstat_get(fd, pbuf) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(44, 0, 1, fd, pbuf);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(45, 0, 1, fd, pbuf);
   pbuf >>>= 0;
   try {
     var rightsBase = 0;
@@ -13120,7 +13144,7 @@ function _fd_fdstat_get(fd, pbuf) {
 };
 
 function _fd_read(fd, iov, iovcnt, pnum) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(45, 0, 1, fd, iov, iovcnt, pnum);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(46, 0, 1, fd, iov, iovcnt, pnum);
   iov >>>= 0;
   iovcnt >>>= 0;
   pnum >>>= 0;
@@ -13136,7 +13160,7 @@ function _fd_read(fd, iov, iovcnt, pnum) {
 }
 
 function _fd_seek(fd, offset, whence, newOffset) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(46, 0, 1, fd, offset, whence, newOffset);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(47, 0, 1, fd, offset, whence, newOffset);
   offset = bigintToI53Checked(offset);
   newOffset >>>= 0;
   try {
@@ -13154,7 +13178,7 @@ function _fd_seek(fd, offset, whence, newOffset) {
 }
 
 function _fd_sync(fd) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(47, 0, 1, fd);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(48, 0, 1, fd);
   try {
     var stream = SYSCALLS.getStreamFromFD(fd);
     if (stream.stream_ops?.fsync) {
@@ -13188,7 +13212,7 @@ function _fd_sync(fd) {
 };
 
 function _fd_write(fd, iov, iovcnt, pnum) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(48, 0, 1, fd, iov, iovcnt, pnum);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(49, 0, 1, fd, iov, iovcnt, pnum);
   iov >>>= 0;
   iovcnt >>>= 0;
   pnum >>>= 0;
@@ -13204,7 +13228,7 @@ function _fd_write(fd, iov, iovcnt, pnum) {
 }
 
 function _getaddrinfo(node, service, hint, out) {
-  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(49, 0, 1, node, service, hint, out);
+  if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(50, 0, 1, node, service, hint, out);
   node >>>= 0;
   service >>>= 0;
   hint >>>= 0;
@@ -13467,14 +13491,14 @@ unexportedSymbols.forEach(unexportedRuntimeSymbol);
 // either synchronously or asynchronously from other threads in postMessage()d
 // or internally queued events. This way a pthread in a Worker can synchronously
 // access e.g. the DOM on the main thread.
-var proxiedFunctionTable = [ _proc_exit, exitOnMainThread, pthreadCreateProxied, ___syscall_accept4, ___syscall_bind, ___syscall_chmod, ___syscall_connect, ___syscall_faccessat, ___syscall_fchmod, ___syscall_fcntl64, ___syscall_fstat64, ___syscall_ftruncate64, ___syscall_getcwd, ___syscall_getdents64, ___syscall_getpeername, ___syscall_getsockname, ___syscall_getsockopt, ___syscall_ioctl, ___syscall_listen, ___syscall_lstat64, ___syscall_mkdirat, ___syscall_newfstatat, ___syscall_openat, ___syscall_poll, ___syscall_readlinkat, ___syscall_recvfrom, ___syscall_recvmsg, ___syscall_renameat, ___syscall_rmdir, ___syscall_sendmsg, ___syscall_socket, ___syscall_stat64, ___syscall_symlinkat, ___syscall_truncate64, ___syscall_unlinkat, ___syscall_utimensat, __mmap_js, __munmap_js, _emscripten_get_element_css_size, _emscripten_set_resize_callback_on_thread, _emscripten_set_wheel_callback_on_thread, _environ_get, _environ_sizes_get, _fd_close, _fd_fdstat_get, _fd_read, _fd_seek, _fd_sync, _fd_write, _getaddrinfo ];
+var proxiedFunctionTable = [ _proc_exit, exitOnMainThread, pthreadCreateProxied, ___syscall_accept4, ___syscall_bind, ___syscall_chmod, ___syscall_connect, ___syscall_faccessat, ___syscall_fchmod, ___syscall_fcntl64, ___syscall_fstat64, ___syscall_ftruncate64, ___syscall_getcwd, ___syscall_getdents64, ___syscall_getpeername, ___syscall_getsockname, ___syscall_getsockopt, ___syscall_ioctl, ___syscall_listen, ___syscall_lstat64, ___syscall_mkdirat, ___syscall_newfstatat, ___syscall_openat, ___syscall_poll, ___syscall_readlinkat, ___syscall_recvfrom, ___syscall_recvmsg, ___syscall_renameat, ___syscall_rmdir, ___syscall_sendmsg, ___syscall_socket, ___syscall_stat64, ___syscall_symlinkat, ___syscall_truncate64, ___syscall_unlinkat, ___syscall_utimensat, __mmap_js, __munmap_js, __setitimer_js, _emscripten_get_element_css_size, _emscripten_set_resize_callback_on_thread, _emscripten_set_wheel_callback_on_thread, _environ_get, _environ_sizes_get, _fd_close, _fd_fdstat_get, _fd_read, _fd_seek, _fd_sync, _fd_write, _getaddrinfo ];
 
 function checkIncomingModuleAPI() {
   ignoredModuleProp("fetchSettings");
 }
 
 var ASM_CONSTS = {
-  9481017: () => {
+  9653797: () => {
     Module.qtSuspendResumeControl = ({
       resume: null,
       asyncifyEnabled: false,
@@ -13483,7 +13507,7 @@ var ASM_CONSTS = {
       exclusiveEventHandler: 0
     });
   },
-  9481162: $0 => {
+  9653942: $0 => {
     function createNamedFunction(name, parent, obj) {
       return {
         [name]: function(...args) {
@@ -13649,6 +13673,7 @@ function assignWasmImports() {
     /** @export */ _mktime_js: __mktime_js,
     /** @export */ _mmap_js: __mmap_js,
     /** @export */ _munmap_js: __munmap_js,
+    /** @export */ _setitimer_js: __setitimer_js,
     /** @export */ _tzset_js: __tzset_js,
     /** @export */ clock_time_get: _clock_time_get,
     /** @export */ emscripten_asm_const_int: _emscripten_asm_const_int,
@@ -14094,6 +14119,8 @@ var __emscripten_run_on_main_thread_js = createExportWrapper("_emscripten_run_on
 var __emscripten_thread_free_data = createExportWrapper("_emscripten_thread_free_data", 1);
 
 var __emscripten_thread_exit = createExportWrapper("_emscripten_thread_exit", 1);
+
+var __emscripten_timeout = createExportWrapper("_emscripten_timeout", 2);
 
 var __emscripten_check_mailbox = createExportWrapper("_emscripten_check_mailbox", 0);
 

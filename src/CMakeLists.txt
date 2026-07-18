@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 4.1.2)
 
 project(thunderstruck VERSION 1.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup(REQUIRES 6.11.1)
@@ -15,9 +13,25 @@ qt_add_executable(thunderstruck
 qt_add_qml_module(thunderstruck
     URI thunderstruck
     QML_FILES
-        Main.qml
+	Main.qml
+
+    RESOURCES
+	full_green_energy.jpg
 )
 
-target_link_libraries(thunderstruck
-    PRIVATE Qt6::Quick
+target_link_libraries(thunderstruck PRIVATE
+    Qt6::Quick
+)
+
+target_compile_options(thunderstruck PRIVATE
+    -pthread
+    -Os
+    -flto
+)
+
+target_link_options(thunderstruck PRIVATE
+    -sALLOW_MEMORY_GROWTH
+    -flto
+    -O0
+    -sWASM_BIGINT
 )

@@ -1,11 +1,13 @@
 import QtQuick
 
 Window {
-	width: 640
-	height: 480
 	visible: true
-	title: qsTr("Hello World")
-	Text {
-		text: "Hello!"
+
+	Image {
+		source: "qrc:/qt/qml/thunderstruck/full_green_energy.jpg"
+		asynchronous: true
+		fillMode: Image.PreserveAspectCrop
+		clip: true
+		anchors.centerIn: parent
 	}
 }
