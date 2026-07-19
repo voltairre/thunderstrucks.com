@@ -24,13 +24,11 @@ target_link_libraries(thunderstruck PRIVATE
 )
 
 target_compile_options(thunderstruck PRIVATE
-    -pthread
     -Os
     -flto
 )
 
 target_link_options(thunderstruck PRIVATE
-    -sALLOW_MEMORY_GROWTH
     -flto
     -O0
     -sWASM_BIGINT
