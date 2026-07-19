@@ -28,19 +28,13 @@ async function qtLoad(config)
     config.qtFontDpi = config.qt.fontDpi;
     delete config.qt.fontDpi;
 
-    // Make Emscripten not call main(); this gives us more control over
-    // the startup sequence.
     const originalNoInitialRun = config.noInitialRun;
     const originalArguments = config.arguments;
     config.noInitialRun = true;
 
-    // Used for rejecting a failed load's promise where emscripten itself does not allow it,
-    // like in instantiateWasm below. This allows us to throw in case of a load error instead of
-    // hanging on a promise to entry function, which emscripten unfortunately does.
     let circuitBreakerReject;
     const circuitBreaker = new Promise((_, reject) => { circuitBreakerReject = reject; });
 
-    // If module async getter is present, use it so that module reuse is possible.
     if (config.qt.module) {
         config.instantiateWasm = async (imports, successCallback) =>
         {
@@ -61,12 +55,10 @@ async function qtLoad(config)
     }
     const filesToPreload = (await Promise.all(config.qt.preload.map(preloadFetchHelper))).flat();
     const qtPreRun = (instance) => {
-        // Copy qt.environment to instance.ENV
         throwIfEnvUsedButNotExported(instance, config);
         for (const [name, value] of Object.entries(config.qt.environment ?? {}))
             instance.ENV[name] = value;
 
-        // Preload files from qt.preload
         const makeDirs = (FS, filePath) => {
             const parts = filePath.split("/");
             let path = "/";
@@ -120,7 +112,7 @@ async function qtLoad(config)
     config.locateFile = filename => {
         const originalLocatedFilename = originalLocateFile ? originalLocateFile(filename) : filename;
         if (originalLocatedFilename.startsWith(
-                    'libQt6')) // wasmqtdeploy rely on this behavior, update both in case of change
+                    'libQt6'))
             return `${config.qt.qtdir}/lib/${originalLocatedFilename}`;
         return originalLocatedFilename;
     }
@@ -153,22 +145,15 @@ async function qtLoad(config)
         }
     };
 
-    // Call app/emscripten module entry function. It may either come from the emscripten
-    // runtime script or be customized as needed.
     let instance;
     try {
         instance = await Promise.race(
             [circuitBreaker, config.qt.entryFunction(config)]);
 
-        // Call main after creating the instance. We've opted into manually
-        // calling main() by setting noInitialRun in the config. Thie Works around
-        // issue where Emscripten suppresses all exceptions thrown during main.
         if (!originalNoInitialRun)
             instance.callMain(originalArguments);
     } catch (e) {
-        // If this is the exception thrown by app.exec() then that is a normal
-        // case and we suppress it.
-        if (e == "unwind") // not much to go on
+        if (e == "unwind")
             return;
 
         if (!onExitCalled) {
@@ -184,8 +169,6 @@ async function qtLoad(config)
     return instance;
 }
 
-// Compatibility API. This API is deprecated,
-// and will be removed in a future version of Qt.
 function QtLoader(qtConfig) {
 
     const warning = 'Warning: The QtLoader API is deprecated and will be removed in ' +
