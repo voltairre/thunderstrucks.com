@@ -13,8 +13,10 @@ Window {
         anchors.fill: parent
 
         CoatOfArms {
-            anchors.centerIn: parent
-            scale: 2.0
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 100
+            scale: 3.0
         }
     }
 }

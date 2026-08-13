@@ -1,4 +1,3 @@
-// Generated from SVG file coat_of_arms.svg
 import QtQuick
 import QtQuick.VectorImage
 import QtQuick.VectorImage.Helpers

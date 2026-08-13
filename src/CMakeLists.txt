@@ -13,11 +13,11 @@ qt_add_executable(thunderstruck
 qt_add_qml_module(thunderstruck
     URI thunderstruck
     QML_FILES
-	Main.qml
-	CoatOfArms.qml
+    Main.qml
+    CoatOfArms.qml
 
     RESOURCES
-	assets/blur_full_green_energy.jpg
+    assets/blur_full_green_energy.jpg
 )
 
 target_link_libraries(thunderstruck PRIVATE
